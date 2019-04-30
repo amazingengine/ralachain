@@ -1,0 +1,19 @@
+apiVersion: apps/v1beta1  # ここは固定 kubernetes の Ver による。
+kind: Deployment # kind ... Deploy や Service など、この yaml で作るモノを定義する。
+metadata:
+  name: ralachain # Deployment そのものの名前。 uninstall が使えない等の規則有り。
+spec:
+  replicas: 1 # 立ち上げる Pod 数。冗長取るなら 2 つ以上か。
+  template:
+    metadata: 
+      labels:
+        app: ralachain-pod # Pod の名前。実際にはこれに ユニーク な ID が追加される。
+    spec:
+      containers:
+      - name: ralachain-ctr        # Docker Container の名前
+        image: ralachain_app:1.0.0 # Docker Image の名前
+        ports:
+        - containerPort: 3031 # Container 側が開ける port
+        env: # Pod に与える環境変数
+        - name: FLASK_CONFIGRATION_ENV
+          value: "production"

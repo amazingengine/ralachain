@@ -1,0 +1,16 @@
+apiVersion: v1 # ここも固定。 kubernetes 側が対応したらVの値を増やす形に
+kind: Service  # kind ... Deploy や Service など、この yaml で作るモノを定義する。
+metadata:
+  name: ralachain-svc # Service そのものの名前。 uninstall が使えない等の規則有り。
+  labels:
+    lb: sandbox
+    pj: ralachain
+spec:
+  type: LoadBalancer # NodePort or LoadBalancer or ExternalName 
+  selector:
+    app: ralachain-pod # ルーティングするPod。Podの名前を指定する必要がある。
+  ports:
+  - port: 3031 # ServiceでExposeするポートを指定する。
+    targetPort: 3031 # Serviceで転送する先のポートを指定する。またはPod内で定義されているNamedPortを指定する。
+
+# https://qiita.com/MahoTakara/items/d18d8f9b36416353066c

@@ -1,2 +1,141 @@
 # ralachain
 
+Pythonモジュールflaskを使用しております。 +
+また、Dockerを使用しております。
+
+flaskについてはこちらを参照して下さい。 +
+https://pypi.org/project/Flask/1.0.2/ +
+
+その他、pythonにインストールされているmoduleに関しては,  +
+`application/requirements.txt` をご参照ください。 +
+`requeirements.txt` についてはこちらを参照してください。 +
+https://pip.pypa.io/en/stable/user_guide/#requirements-files
+
+Dockerについてはこちらを参照して下さい。 +
+https://www.docker.com/ +
+
+## クイックスタート
+
+`.example.env` をコピーして `.env` としてください。 +
+そうしまして `docker-compose up` とするとDockerComposeが立ち上がります。 +
+その後、以下のURLにウェブブラウザにアクセスしてください。
+
+....
+# Dockerの場合
+http://localhost:5000
+http://127.0.0.1:5000
+
+# Docker-toolboxの場合
+http://192.168.99.100:5000
+....
+
+## iniファイルを使う
+
+ralachainではiniファイルを使うことで様々な設定を変更できます +
+`Flask` としてiniファイルを使うのであれば、 `python app.py foobar.ini` としてください。 +
+
+`ini` のファイル名は好きなもので問題ありません。 +
+ 
+
+### CSVモード
+
+カレントディレクトリを `application/` に移した状態で +
+
+`python app.py csv_mode.ini` と実行しましょう。 +
+
+Flaskが起動しますので、アクセスしましょう。 +
+
+`http://127.0.0.1:5000/<key>` or `http://192.168.99.100:5000/<key>` とアクセスすれば、 `<key>` に対応した本文が表示されます。 +
+
+`csv` ファイルのエンコードは `UTF-8` です。 `application/` 内においてください。 +
+
+keyは[hoge, fuga, piyo]
+....
+[settings]
+engine = csv
+file = testdatas.csv
+....
+
+### MySQLモード
+
+`ralachain` ディレクトリをカレントディレクトリにした状態で +
+
+`docker-compose up -d mysql` としてmysqlサービスをデタッチドモードで起動します。 +
+
+(テスト用データを生成する都合上、mysqlサービスの立ち上がりが完了するまで3,4分かかります。) +
+
+その後、カレントディレクトリを `application/` に移し +
+
+`python app.py mysql_mode.ini` と実行しましょう。 +
+
+Flaskが起動しますので、アクセスしましょう。 +
+
+`http://127.0.0.1:5000/<key>` or `http://192.168.99.100:5000/<key>` とアクセスすれば、 `<key>` に対応した本文が表示されます。 +
+
+keyは[hoge, fuga, piyo]
+
+....
+[settings]
+engine = mysql
+ipaddr_or_hostname = 127.0.0.1
+port = 3306
+db = database
+username = root
+password = secret
+tablename = testdatas
+....
+
+### Redisモード
+
+`ralachain` ディレクトリをカレントディレクトリにした状態で +
+
+`docker-compose up -d redis` としてredisサービスをデタッチドモードで起動します。 +
+
+(テスト用データは `redis/data/dump.rdb` 内に保存されています。) +
+
+その後、カレントディレクトリを `application/` に移し +
+
+`python app.py redis_mode.ini` と実行しましょう。 +
+
+Flaskが起動しますので、アクセスしましょう。 +
+
+`http://127.0.0.1:5000/<key>` or `http://192.168.99.100:5000/<key>` とアクセスすれば、 `<key>` に対応した本文が表示されます。 +
+
+keyは[hoge, fuga, piyo]
+....
+[settings]
+engine = redis
+ipaddr_or_hostname = 127.0.0.1
+port = 6379
+db = 0
+password = None
+....
+
+### ユニットテストの方法について
+`pytest` というモジュールを用いてユニットテストを行えます。
+
+`docker-compose up -d` としてコンテナを立ち上げた後に以下のコマンドを打ってください。
+
+....
+docker-compose exec app pytest ../test 
+....
+
+### マルチバイトのkeyについて
+
+マルチバイト文字のkeyを使用する場合はiniファイルに以下の文を `追記` してください
+
+....
+[options]
+key_multibyte = True
+....
+
+例)
+
+....
+[settings]
+engine = csv
+file = testdatas.csv
+
+[options]
+key_multibyte = True
+....

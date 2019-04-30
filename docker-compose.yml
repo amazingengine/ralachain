@@ -1,0 +1,49 @@
+version: "3"
+services:
+    app:
+        image: ralachain_app:${application_tag}
+        build:
+            context: application
+            args:
+                PythonVersion: ${python_version}
+        volumes:
+            - "./application/:${container_mountpoint_application}"
+            - "./test/:/var/test"
+        environment:
+            FLASK_CONFIGRATION_ENV: "development"
+            MYSQL_DATABASE: ${mysql_database_name}
+            MYSQL_USER: ${mysql_username}
+            MYSQL_PASSWORD: ${mysql_password}
+            MYSQL_HOSTNAME: mysql
+            REDIS_HOSTNAME: redis
+            TZ: "Asia/Tokyo"
+        ports:
+            - "${port_of_flask}"
+        depends_on:
+          - "mysql"
+        stdin_open: true
+        tty: true
+        command: python app.py csv_mode.ini
+
+    mysql:
+        image: mysql:5.7.25
+        environment:
+            MYSQL_DATABASE: ${mysql_database_name}
+            MYSQL_USER: ${mysql_username}
+            MYSQL_PASSWORD: ${mysql_password}
+            MYSQL_ROOT_PASSWORD: ${mysql_root_password}
+            TZ: "Asia/Tokyo"
+        volumes:
+            - "./mysql/initdb:/docker-entrypoint-initdb.d"
+        ports:
+            - "${port_of_mysql}"
+        command: mysqld --ssl=0 --character-set-server=utf8 --collation-server=utf8_unicode_ci # SET utf8
+
+    redis:
+        image: redis:5.0.3
+        environment:
+            TZ: "Asia/Tokyo"
+        ports:
+            - "${port_of_redis}"
+        volumes:
+            - "./redis/data:/data"
